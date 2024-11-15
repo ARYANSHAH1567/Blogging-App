@@ -2,7 +2,6 @@ const express = require("express");
 const cors = require("cors");
 const { connect } = require("mongoose");
 require("dotenv").config();
-const upload = require("express-fileupload");
 
 const userRoutes = require("./routes/userRoutes");
 const postRoutes = require("./routes/postRoutes");
@@ -35,21 +34,11 @@ app.use(express.json({ extended: true }));
  * @param {boolean} options.credentials - Whether to allow credentials (cookies, HTTP authentication).
  * @param {string} options.origin - The allowed origin for requests (here it's 'http://localhost:3000').
  */
-app.use(cors({ credentials: true, origin: "http://localhost:3000" }));
-
-/**
- * Middleware to handle file uploads.
- * @name express-fileupload
- * @param {Object} options - Options to configure file upload handling.
- */
-app.use(upload());
-
-/**
- * Serve static files (such as images or documents) from the uploads directory.
- * @name express.static
- * @param {string} path - Path to the directory where uploaded files are stored.
- */
-app.use("/uploads", express.static(__dirname + "/uploads"));
+app.use(cors({
+  origin: ["https://blogging-app-inky.vercel.app"],
+  methods: ["POST","GET","DELETE","PATCH","PUT"],
+  credentials: true
+}));
 
 /**
  * Routes for user-related operations (e.g., registration, login, etc.).

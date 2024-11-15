@@ -1,6 +1,7 @@
 const HttpError = require("../models/errorModel");
 const Post = require("../models/postModel");
 const { v4: uuid } = require("uuid");
+const cloudinary = require("cloudinary").v2;
 const path = require("path");
 const User = require("../models/userModel");
 const fs = require("fs");
@@ -27,26 +28,12 @@ const createPost = async (req, res, next) => {
     if (!title || !description || !category) {
       return next(new HttpError("Please fill all the fields", 422));
     }
-
-    const { thumbnail } = req.files;
-    if (thumbnail.size > 2000000) {
-      return next(new HttpError("Thumbnail too big. Should be less than 2mb"));
-    }
-
-    let filename = thumbnail.name;
-    let splittedFilename = filename.split(".");
-    let newFilename =
-      splittedFilename[0] + uuid() + "." + splittedFilename.slice(-1);
-
-    thumbnail.mv(
-      path.join(__dirname, "..", "uploads", newFilename),
-      async (err) => {
-        if (err) return next(new HttpError(err));
+        const thumbnailUrl = req.file.path;
         const newPost = await Post.create({
           title,
           category,
           description,
-          thumbnail: newFilename,
+          thumbnail: thumbnailUrl,
           creator: req.user.id,
         });
         if (!newPost) {
@@ -56,8 +43,6 @@ const createPost = async (req, res, next) => {
         await User.findByIdAndUpdate(req.user.id, { $inc: { posts: 1 } });
 
         res.status(201).json(newPost);
-      },
-    );
   } catch (error) {
     return next(new HttpError(error));
   }
@@ -164,31 +149,36 @@ const getUserPosts = async (req, res, next) => {
 const editPost = async (req, res, next) => {
   try {
     const updateFields = { ...req.body };
-    let newFilename;
-
     const post = await Post.findById(req.params.id);
+
+    // Check if post exists and user is authorized
     if (!post || post.creator.toString() !== req.user.id) {
       return next(new HttpError("Unauthorized or post not found", 401));
     }
 
-    if (req.files) {
-      const { thumbnail } = req.files;
-      newFilename = thumbnail.name.split(".")[0] + uuid() + ".jpg";
-      await fs.promises.unlink(
-        path.join(__dirname, "..", "uploads", post.thumbnail),
-      );
-      thumbnail.mv(path.join(__dirname, "..", "uploads", newFilename));
-      updateFields.thumbnail = newFilename;
+    // Handle file update with Cloudinary
+    if (req.file) {
+      // Delete the old image from Cloudinary if it exists
+      if (post.thumbnail) {
+        const publicId = post.thumbnail.split('/').pop().split('.')[0];
+        await cloudinary.uploader.destroy(`BloggingApp_DEV/${publicId}`);
+      }
+
+      // Get the new image URL from Cloudinary upload
+      const thumbnailUrl = req.file.path; // `req.file.path` contains the Cloudinary URL
+      updateFields.thumbnail = thumbnailUrl;
     }
 
+    // Update the post with new fields
     const updatedPost = await Post.findByIdAndUpdate(
       req.params.id,
       updateFields,
-      { new: true },
+      { new: true }
     );
+
     res.status(200).json(updatedPost);
   } catch (error) {
-    next(new HttpError(error));
+    next(new HttpError(error.message || 'Something went wrong during post update.'));
   }
 };
 
@@ -204,20 +194,29 @@ const editPost = async (req, res, next) => {
  */
 const deletePost = async (req, res, next) => {
   try {
+    // Find the post by ID
     const post = await Post.findById(req.params.id);
     if (!post || post.creator.toString() !== req.user.id) {
       return next(new HttpError("Unauthorized or post not found", 401));
     }
 
-    await fs.promises.unlink(
-      path.join(__dirname, "..", "uploads", post.thumbnail),
-    );
+    // Delete the thumbnail from Cloudinary if it exists
+    if (post.thumbnail) {
+      const publicId = post.thumbnail
+        .split('/')
+        .pop()
+        .split('.')[0]; // Extract the public ID from the thumbnail URL
+      await cloudinary.uploader.destroy(`BloggingApp_DEV/${publicId}`);
+    }
+
+    // Delete the post from the database
     await Post.findByIdAndDelete(req.params.id);
     res.status(200).json({ message: "Post deleted" });
   } catch (error) {
-    next(new HttpError(error));
+    next(new HttpError(error.message || "Failed to delete the post"));
   }
 };
+
 
 module.exports = {
   createPost,

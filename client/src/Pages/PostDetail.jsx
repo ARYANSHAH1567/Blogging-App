@@ -122,7 +122,7 @@ const PostDetail = () => {
           <h1>{post.title}</h1>
           <div className="post-detail-thumbnail">
             <img
-              src={`${process.env.REACT_APP_ASSETS_URL}/uploads/${post?.thumbnail}`}
+              src={`${post.thumbnail}`}
               alt="Thumbnail"
             />
           </div>
@@ -175,7 +175,7 @@ const PostDetail = () => {
                         <h5 className="card-title">
                           <img
                             className="comment-avatar"
-                            src={`${process.env.REACT_APP_ASSETS_URL}/uploads/${Comment.creator.avatar}`}
+                            src={`${Comment.creator.avatar}`}
                             alt=""
                           />
                           {Comment.creator.name}

@@ -5,6 +5,7 @@ const jwt = require("jsonwebtoken");
 const fs = require("fs");
 const path = require("path");
 const { v4: uuid } = require("uuid");
+const cloudinary = require("cloudinary").v2;
 
 /**
  * Register a new user.
@@ -123,38 +124,36 @@ const getUser = async (req, res, next) => {
  */
 const changeAvatar = async (req, res, next) => {
   try {
-    const { avatar } = req.files;
-    if (!avatar || avatar.size > 500000) {
-      return next(new HttpError("Please choose an image less than 500kb", 422));
+    // Check if the file is uploaded and has a valid size
+    if (!req.file || req.file.size > 500000) {
+      return next(new HttpError("Please choose an image less than 500KB", 422));
     }
 
     const userId = req.user.id;
     const user = await User.findById(userId);
 
+    // Delete the existing avatar from Cloudinary if it exists
     if (user.avatar) {
-      fs.unlink(path.join(__dirname, "..", "uploads", user.avatar), (err) => {
-        if (err) return next(new HttpError(err));
-      });
+      const publicId = user.avatar.split('/').pop().split('.')[0];
+      await cloudinary.uploader.destroy(`BloggingApp_DEV/${publicId}`);
     }
 
-    const newFilename = `${avatar.name.split(".")[0]}${uuid()}.jpg`;
-    avatar.mv(
-      path.join(__dirname, "..", "uploads", newFilename),
-      async (err) => {
-        if (err) return next(new HttpError(err));
+    // Get the new image URL from the uploaded file
+    const avatarUrl = req.file.path; // Cloudinary URL provided by Multer
 
-        const updatedUser = await User.findByIdAndUpdate(
-          userId,
-          { avatar: newFilename },
-          { new: true },
-        );
-        res.status(200).json(updatedUser);
-      },
+    // Update the user's avatar in the database
+    const updatedUser = await User.findByIdAndUpdate(
+      userId,
+      { avatar: avatarUrl },
+      { new: true }
     );
+
+    res.status(200).json(updatedUser);
   } catch (error) {
-    return next(new HttpError(error));
+    return next(new HttpError(error.message || "Failed to update avatar"));
   }
 };
+
 
 /**
  * Edit user details.

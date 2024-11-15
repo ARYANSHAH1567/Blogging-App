@@ -140,7 +140,7 @@ const UserProfile = () => {
           <div className="avatar_wrapper">
             <div className="profile_avatar">
               <img
-                src={`${process.env.REACT_APP_ASSETS_URL}/uploads/${avatar}`}
+                src={`${avatar}`}
                 alt="User Avatar"
               />
             </div>

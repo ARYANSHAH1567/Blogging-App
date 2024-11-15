@@ -8,6 +8,17 @@ const {
   getAuthors,
 } = require("../controllers/userControllers");
 const authMiddleware = require("../middleware/authMiddleware");
+const multer = require('multer');
+const { storage } = require('../cloudConfig.js');
+const upload = multer({ storage });
+
+/**
+ * @description Configures the Multer middleware for file uploads.
+ * Multer is used to handle `multipart/form-data` for image uploads.
+ * This configuration uses Cloudinary's storage setup to upload images directly to Cloudinary.
+ * @type {multer.Multer}
+ */
+
 const router = Router();
 
 /**
@@ -34,12 +45,14 @@ router.post("/login", loginUser);
 
 /**
  * @route POST /api/users/change-avatar
- * @desc Change the avatar of the logged-in user
- * @access Private (Requires authentication)
- * @param {File} avatar - The new avatar image to upload.
- * @returns {Object} The updated user object with the new avatar.
+ * @desc Update the avatar image of the currently authenticated user.
+ * @access Private
+ * @param {File} avatar - The new avatar image file to upload (multipart/form-data).
+ * @returns {Object} The updated user object with the new avatar URL.
+ * @throws {Error} If the avatar is not uploaded or there is an issue with the update.
  */
-router.post("/change-avatar", authMiddleware, changeAvatar);
+router.post("/change-avatar", authMiddleware, upload.single('avatar'), changeAvatar);
+
 
 /**
  * @route PATCH /api/users/edit-user

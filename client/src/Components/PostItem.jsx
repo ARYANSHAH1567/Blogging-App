@@ -37,7 +37,7 @@ const PostItem = ({
       {/* Post Thumbnail */}
       <div className="post_thumbnail">
         <img
-          src={`${process.env.REACT_APP_ASSETS_URL}/uploads/${thumbnail}`}
+          src={`${thumbnail}`}
           alt={title}
         />
       </div>

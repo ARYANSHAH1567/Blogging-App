@@ -62,7 +62,7 @@ const Authors = () => {
               <Link key={id} to={`/posts/users/${id}`} className="author">
                 <div className="author_avatar">
                   <img
-                    src={`${process.env.REACT_APP_ASSETS_URL}/uploads/${avatar}`}
+                    src={`${avatar}`}
                     alt={`${name}`}
                   />
                 </div>
