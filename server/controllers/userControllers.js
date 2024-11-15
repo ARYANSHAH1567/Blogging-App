@@ -138,13 +138,15 @@ const changeAvatar = async (req, res, next) => {
       await cloudinary.uploader.destroy(`BloggingApp_DEV/${publicId}`);
     }
 
-    // Get the new image URL from the uploaded file
-    const avatarUrl = req.file.path; // Cloudinary URL provided by Multer
+   // Upload the new avatar to Cloudinary and get the URL
+    const result = await cloudinary.uploader.upload(req.file.path, {
+      folder: 'BloggingApp_DEV', // Specify the folder
+    });
 
-    // Update the user's avatar in the database
+    // Update the user's avatar URL in the database
     const updatedUser = await User.findByIdAndUpdate(
       userId,
-      { avatar: avatarUrl },
+      { avatar: result.secure_url }, // Save the URL from Cloudinary
       { new: true }
     );
 
