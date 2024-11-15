@@ -15,6 +15,7 @@ This is a blogging platform where users can create, edit, and view blog posts. I
   - Node.js with Express (for handling API routes)
   - MongoDB (for storing user data, posts, and comments)
   - JWT (for user authentication)
+  - Multer & Cloudinary (for file storage and upload)
 
 - **Authentication**:
   - JWT (JSON Web Tokens) for secure authentication
@@ -325,4 +326,5 @@ This is a blogging platform where users can create, edit, and view blog posts. I
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+"# Blogging-App" 
 "# Blogging-App" 
