@@ -35,12 +35,12 @@ This is a blogging platform where users can create, edit, and view blog posts. I
 
 1. Clone this repository:
     ```bash
-    git clone https://github.com/yourusername/blogging-website.git
+    git clone https://github.com/yourusername/Blogging-App.git
     ```
 
 2. Navigate to the `blog` directory and install the required dependencies:
     ```bash
-    cd blog
+    cd Blogging-App
     npm install
     ```
 
@@ -49,6 +49,9 @@ This is a blogging platform where users can create, edit, and view blog posts. I
       ```
       MONGO_URI=your_mongodb_connection_string
       JWT_SECRET=your_jwt_secret
+      CLOUD_NAME=your_cloudinary_name
+      CLOUD_API_KEY=your_cloudinary_api_key
+      CLOUD_API_SECRET=your_cloudinary_api_secret
       ```
 
 4. Start the project:
