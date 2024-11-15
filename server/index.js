@@ -35,7 +35,11 @@ app.use(express.json({ extended: true }));
  * @param {boolean} options.credentials - Whether to allow credentials (cookies, HTTP authentication).
  * @param {string} options.origin - The allowed origin for requests (here it's 'http://localhost:3000').
  */
-app.use(cors({ credentials: true, origin: "http://localhost:3000" }));
+app.use(cors({
+  origin: ["https://blogging-app-inky.vercel.app"],
+  methods: ["POST","GET","DELETE","PATCH","PUT"],
+  credentials: true
+}));
 
 /**
  * Middleware to handle file uploads.
