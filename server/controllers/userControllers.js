@@ -139,16 +139,17 @@ const changeAvatar = async (req, res, next) => {
     // }
 
    // Upload the new avatar to Cloudinary and get the URL
-    const result = await cloudinary.uploader.upload(req.file.path, {
-      folder: 'BloggingApp_DEV', // Specify the folder
-    });
-
-    // Update the user's avatar URL in the database
-    const updatedUser = await User.findByIdAndUpdate(
-      userId,
-      { avatar: result.secure_url }, // Save the URL from Cloudinary
-      { new: true }
-    );
+    const result = await cloudinary.uploader.upload(req.file.buffer, {
+    folder: 'BloggingApp_DEV', // Specify the folder
+    resource_type: 'auto', // Automatically detect file type (image, video, etc.)
+  });
+  
+  // Update the user's avatar URL in the database
+   const updatedUser = await User.findByIdAndUpdate(
+    userId,
+    { avatar: result.secure_url }, // Save the URL from Cloudinary
+    { new: true }
+  );
 
     res.status(200).json(updatedUser);
   } catch (error) {
