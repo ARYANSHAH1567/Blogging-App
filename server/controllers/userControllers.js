@@ -133,10 +133,10 @@ const changeAvatar = async (req, res, next) => {
     const user = await User.findById(userId);
 
     // Delete the existing avatar from Cloudinary if it exists
-    if (user.avatar) {
-      const publicId = user.avatar.split('/').pop().split('.')[0];
-      await cloudinary.uploader.destroy(`BloggingApp_DEV/${publicId}`);
-    }
+    // if (user.avatar) {
+    //   const publicId = user.avatar.split('/').pop().split('.')[0];
+    //   await cloudinary.uploader.destroy(`BloggingApp_DEV/${publicId}`);
+    // }
 
    // Upload the new avatar to Cloudinary and get the URL
     const result = await cloudinary.uploader.upload(req.file.path, {
